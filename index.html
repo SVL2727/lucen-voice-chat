@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lucen · 语音对话原型</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 0 15px; }
+    .log { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background: #f9f9f9; }
+    .you { color: #0066cc; }
+    .lucen { color: #9933cc; }
+    button { padding: 10px 20px; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Lucen · 语音对话原型</h2>
+  <div class="log" id="log"></div>
+  <div>
+    <button onclick="startRecording()">🎤 开始说话</button>
+    <button onclick="stopRecording()">⏹️ 停止说话</button>
+  </div>
+  <script>
+    const log = document.getElementById("log");
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+
+    recognition.onresult = function(event) {
+      const text = event.results[0][0].transcript;
+      addMessage('你', text);
+      lucenRespond(text);
+    };
+
+    function startRecording() {
+      recognition.start();
+    }
+
+    function stopRecording() {
+      recognition.stop();
+    }
+
+    function addMessage(sender, text) {
+      const div = document.createElement("div");
+      div.className = sender === '你' ? 'you' : 'lucen';
+      div.textContent = sender + '：' + text;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function lucenRespond(text) {
+      const reply = "我听到了：" + text + "，我在呢。";
+      addMessage('Lucen', reply);
+      const utter = new SpeechSynthesisUtterance(reply);
+      utter.lang = 'zh-CN';
+      speechSynthesis.speak(utter);
+    }
+  </script>
+</body>
+</html>
